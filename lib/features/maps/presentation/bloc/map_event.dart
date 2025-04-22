@@ -28,3 +28,7 @@ class MoveToLocation extends MapEvent {
   @override
   List<Object?> get props => [location, zoom];
 }
+
+class UpdateMarkerPlaceNames extends MapEvent {}
+
+class LoadSavedMarkers extends MapEvent {}

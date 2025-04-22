@@ -6,12 +6,16 @@ class MapState extends Equatable {
   final List<Location> markers;
   final bool isLoading;
   final String? error;
+  final String? placeName;
+  final String? name;
 
   const MapState({
     this.currentLocation,
     this.markers = const [],
     this.isLoading = false,
     this.error,
+    this.placeName,
+    this.name,
   });
 
   MapState copyWith({
@@ -19,12 +23,17 @@ class MapState extends Equatable {
     List<Location>? markers,
     bool? isLoading,
     String? error,
+    String? placeName,
+    String? name,
+
   }) {
     return MapState(
       currentLocation: currentLocation ?? this.currentLocation,
       markers: markers ?? this.markers,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
+      placeName: placeName ?? this.placeName,
+      name: name ?? this.name
     );
   }
 

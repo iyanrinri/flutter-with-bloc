@@ -8,6 +8,7 @@ import 'package:yukngantri/core/utils/double_back_to_exit.dart';
 import 'package:yukngantri/core/widgets/layouts/main.dart';
 import 'package:yukngantri/features/maps/data/map_repository.dart';
 import 'package:yukngantri/features/maps/data/services/location_service.dart';
+import 'package:yukngantri/features/maps/data/services/place_service.dart';
 import 'package:yukngantri/features/maps/domain/entities/location.dart';
 import 'package:yukngantri/features/maps/presentation/bloc/map_bloc.dart';
 import 'package:yukngantri/features/maps/presentation/bloc/map_event.dart';
@@ -22,7 +23,8 @@ class MapPlayground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MapBloc(MapRepository(LocationService()))
+      create: (context) => MapBloc(MapRepository(LocationService(PlaceService())))
+        ..add(LoadSavedMarkers())
         ..add(LoadCurrentLocation()),
       child: const MapPlaygroundView(),
     );
@@ -64,7 +66,7 @@ class MapPlaygroundViewState extends State<MapPlaygroundView>
     final zoomTween = Tween<double>(begin: currentZoom, end: destZoom);
 
     final controller = AnimationController(
-      duration: const Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
@@ -144,32 +146,6 @@ class MapPlaygroundViewState extends State<MapPlaygroundView>
                         enableMultiFingerGestureRace: true,
                       ),
                     ),
-                    // options: MapOptions(
-                    //   initialCenter: LatLng(
-                    //     state.currentLocation!.latitude,
-                    //     state.currentLocation!.longitude,
-                    //   ),
-                    //   initialZoom: 15.0,
-                    //   onLongPress: (tapPosition, point) {
-                    //     context.read<MapBloc>().add(
-                    //       AddMarker(
-                    //         Location(
-                    //           latitude: point.latitude,
-                    //           longitude: point.longitude,
-                    //           name:
-                    //           'Location: ${point.latitude}, ${point.longitude}',
-                    //         ),
-                    //       ),
-                    //     );
-                    //   },
-                    //   interactionOptions: const InteractionOptions(
-                    //     flags: InteractiveFlag.pinchZoom |
-                    //     InteractiveFlag.drag |
-                    //     InteractiveFlag.rotate,
-                    //     rotationThreshold: 20.0,
-                    //     enableMultiFingerGestureRace: true,
-                    //   ),
-                    // ),
                     children: [
                       TileLayer(
                         urlTemplate:
@@ -178,14 +154,6 @@ class MapPlaygroundViewState extends State<MapPlaygroundView>
                         userAgentPackageName: 'com.yukngantri.yukngantri',
                         // tileProvider: CancellableNetworkTileProvider(),
                         tileProvider: _tileProvider,
-                        tileBuilder: (context, widget, tile) {
-                          final url = 'https://tile.openstreetmap.org/${tile.coordinates.z}/${tile.coordinates.x}/${tile.coordinates.y}.png';
-                          return CachedNetworkImage(
-                            imageUrl: url,
-                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                            errorWidget: (context, url, error) => const Icon(Icons.error),
-                          );
-                        },
                       ),
                       MarkerLayer(
                         markers: [

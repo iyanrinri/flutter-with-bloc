@@ -15,4 +15,5 @@ Future main() async {
   }
   await FMTCStore('mapStore').manage.create();
   runApp(const MyApp());
+  // runApp(const GeolocatorWidget());
 }
