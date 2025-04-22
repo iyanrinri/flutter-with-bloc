@@ -45,28 +45,25 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-
 	<key>NSFaceIDUsageDescription</key>
-    <string>We use Face ID to protect your data</string>
-    <key>NSAppTransportSecurity</key>
-    <dict>
-      <key>NSAllowsArbitraryLoads</key>
-      <true/>
-    </dict>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Kami menggunakan lokasi Anda untuk menampilkan data berdasarkan posisi Anda.</string>
-
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Kami membutuhkan akses lokasi Anda meskipun aplikasi berjalan di latar belakang.</string>
-    <key>LSApplicationQueriesSchemes</key>
-    <array>
-      <string>googlemaps</string>
-      <string>comgooglemaps</string>
-    </array>
-    <key>LSApplicationQueriesSchemes</key>
-    <array>
-      <string>https</string>
-      <string>geo</string>
-    </array>
+    	<string>We use Face ID to protect your data</string>
+    	<key>NSAppTransportSecurity</key>
+    	<dict>
+    		<key>NSAllowsArbitraryLoads</key>
+    		<true/>
+    	</dict>
+    	<key>NSLocationWhenInUseUsageDescription</key>
+    	<string>Kami menggunakan lokasi Anda untuk menampilkan data berdasarkan posisi Anda.</string>
+    	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    	<string>Kami membutuhkan akses lokasi Anda untuk menampilkan data berdasarkan posisi Anda, termasuk saat aplikasi berjalan di latar belakang.</string>
+    	<key>NSLocationAlwaysUsageDescription</key>
+    	<string>Kami membutuhkan akses lokasi Anda meskipun aplikasi berjalan di latar belakang.</string>
+    	<key>LSApplicationQueriesSchemes</key>
+    	<array>
+    		<string>googlemaps</string>
+    		<string>comgooglemaps</string>
+    		<string>https</string>
+    		<string>geo</string>
+    	</array>
 </dict>
 </plist>

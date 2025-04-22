@@ -1,4 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yukngantri/core/utils/double_back_to_exit.dart';
@@ -30,74 +29,78 @@ class DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return DoubleBackToExitWrapper(
-        child: MainLayout(
-          title: "Dashboard",
-          titleIcon: Icon(Icons.dashboard),
-          child: BlocConsumer<AuthBloc, AuthState>(
-              listener: (context, state) {
-                if (state.user == null && !state.isLoading) {
-                  // Jika pengguna tidak terautentikasi, arahkan ke LoginPage
-                  Navigator.pushReplacementNamed(context, LoginPage.routeName);
-                }
-              },
-              builder: (context, state) {
-                if (state.isLoading || state.user == null) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return AspectRatio(
-                  aspectRatio: 1.23,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Welcome, ${state.user!['data']['name'] ?? 'User'}',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+      child: MainLayout(
+        title: "Dashboard",
+        titleIcon: Icon(Icons.dashboard),
+        child: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state.user == null && !state.isLoading) {
+              // Jika pengguna tidak terautentikasi, arahkan ke LoginPage
+              Navigator.pushReplacementNamed(context, LoginPage.routeName);
+            }
+          },
+          builder: (context, state) {
+            if (state.isLoading || state.user == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return AspectRatio(
+              aspectRatio: 1.23,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Welcome, ${state.user!['data']['name'] ?? 'User'}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.refresh,
-                              color: Colors.black,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                isShowingMainData = !isShowingMainData;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Monthly Sales',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 37),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 16, left: 6),
-                          child: LineChartWidget(isShowingMainData: isShowingMainData),
+                        IconButton(
+                          icon: Icon(Icons.refresh, color: Colors.black),
+                          onPressed: () {
+                            setState(() {
+                              isShowingMainData = !isShowingMainData;
+                            });
+                          },
                         ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Monthly Sales',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 37),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16, left: 6),
+                      child: LineChartWidget(
+                        isShowingMainData: isShowingMainData,
                       ),
-                      const SizedBox(height: 10),
-                    ],
-                  )
-                );
-              }
-          ),
-        )
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

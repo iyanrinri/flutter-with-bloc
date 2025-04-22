@@ -54,8 +54,8 @@ class _ProfilePageState extends State<ProfilePage> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            final userName = state.user?['name'] ?? 'Unknown User';
-            final email = state.user?['email'] ?? 'No email provided';
+            final userName = state.user?['data']['name'] ?? 'Unknown User';
+            final email = state.user?['data']['email'] ?? 'No email provided';
 
             return Column(
               children: [

@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:yukngantri/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:yukngantri/features/auth/presentation/bloc/auth_event.dart';
 import 'package:yukngantri/features/auth/presentation/bloc/auth_state.dart';
@@ -27,30 +24,6 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  late Future<Map<String, dynamic>?> userFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    userFuture = checkUser();
-  }
-
-  Future<Map<String, dynamic>?> checkUser() async {
-    try {
-      const storage = FlutterSecureStorage();
-      final userJson = await storage.read(key: 'user');
-      if (userJson != null) {
-        final userData = jsonDecode(userJson);
-        return userData['data'];
-      }
-      return null;
-    } catch (e, stackTrace) {
-      print('Error in checkUser: $e');
-      print('Stack trace: $stackTrace');
-      return null; // Kembalikan null jika ada error
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
@@ -59,32 +32,22 @@ class _MainLayoutState extends State<MainLayout> {
           Navigator.pushReplacementNamed(context, LoginPage.routeName);
         }
       },
-      child: BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-        if (state.isLoading) {
-          return const Scaffold(backgroundColor: Colors.white,
-            body: Center(child: CircularProgressIndicator())
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Scaffold(
+              backgroundColor: Colors.white,
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          final user = state.user;
+          return Scaffold(
+            appBar: _buildAppBar(widget.title),
+            drawer: _buildDrawer(context, user),
+            floatingActionButton: widget.floatingActionButton,
+            body: SafeArea(child: widget.child),
           );
-        }
-        final user = state.user;
-        return Scaffold(
-          appBar: _buildAppBar(widget.title),
-          drawer: _buildDrawer(context, user),
-          floatingActionButton: widget.floatingActionButton,
-          body: SafeArea(
-            child: widget.child,
-          ),
-        );
-      }),
-    );
-  }
-
-  ClipRRect _logo() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(75),
-      child: Image.asset(
-        _AppConstants.appIconPath,
-        width: 38,
-        height: 38,
+        },
       ),
     );
   }
@@ -104,8 +67,19 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 
+  ClipRRect _logo() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(75),
+      child: Image.asset(
+        _AppConstants.appIconPath,
+        width: 38,
+        height: 38,
+      ),
+    );
+  }
+
   Drawer _buildDrawer(BuildContext context, Map<String, dynamic>? user) {
-    var currentRole = user?['role']?.toUpperCase() ?? 'USER';
+    final currentRole = user?['data']['role']?.toString().toUpperCase() ?? 'USER';
     return Drawer(
       child: Column(
         children: [
@@ -114,27 +88,12 @@ class _MainLayoutState extends State<MainLayout> {
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
-                _buildDrawerItem(
-                  context,
-                  Icons.dashboard,
-                  'Dashboard',
-                  '/dashboard',
-                ),
-                _buildDrawerItem(
-                  context,
-                  Icons.store,
-                  'Merchants',
-                  '/merchants',
-                ),
-                if (currentRole == 'ADMIN') // Only show for ADMIN
+                _buildDrawerItem(context, Icons.dashboard, 'Dashboard', '/dashboard'),
+                _buildDrawerItem(context, Icons.store, 'Merchants', '/merchants'),
+                if (currentRole == 'ADMIN')
                   _buildDrawerItem(context, Icons.people, 'Users', '/users'),
                 _buildDrawerItem(context, Icons.newspaper, 'News', '/news'),
-                _buildDrawerItem(
-                  context,
-                  Icons.map,
-                  'Map Playground',
-                  '/map-playground',
-                ),
+                _buildDrawerItem(context, Icons.map, 'Map Playground', '/map-playground'),
               ],
             ),
           ),
@@ -143,10 +102,7 @@ class _MainLayoutState extends State<MainLayout> {
           _buildLogoutItem(context),
           Padding(
             padding: EdgeInsets.only(
-              bottom: MediaQuery
-                  .of(context)
-                  .viewPadding
-                  .bottom + 16,
+              bottom: MediaQuery.of(context).viewPadding.bottom + 16,
             ),
           ),
         ],
@@ -176,10 +132,8 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 
-  ListTile _buildDrawerItem(BuildContext context,
-      IconData icon,
-      String title,
-      String routeName,) {
+  ListTile _buildDrawerItem(
+      BuildContext context, IconData icon, String title, String routeName) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
@@ -195,7 +149,8 @@ class _MainLayoutState extends State<MainLayout> {
       title: const Text('Logout'),
       onTap: () async {
         context.read<AuthBloc>().add(const LogoutRequested());
-        Navigator.pop(context);
+        Navigator.pop(context); // Tutup drawer
+        Navigator.pushReplacementNamed(context, LoginPage.routeName);
       },
     );
   }

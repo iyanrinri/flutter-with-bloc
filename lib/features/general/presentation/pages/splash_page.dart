@@ -7,6 +7,7 @@ import 'package:yukngantri/features/auth/presentation/bloc/auth_event.dart';
 import 'package:yukngantri/features/auth/presentation/bloc/auth_state.dart';
 import 'package:yukngantri/features/general/presentation/pages/dashboard_page.dart';
 import 'package:yukngantri/features/auth/presentation/pages/login.dart';
+import 'package:geolocator/geolocator.dart';
 
 class SplashPage extends StatefulWidget {
   static const routeName = '/';
@@ -21,7 +22,22 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
+    _handleLocationPermission();
     context.read<AuthBloc>().add(const InitUserRequested());
+  }
+
+  Future<void> _handleLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      // Bisa tampilkan snackbar, dialog, atau navigasi ke settings
+      print("User tidak memberi izin lokasi.");
+    } else {
+      print("Izin lokasi diberikan.");
+    }
   }
 
   @override
