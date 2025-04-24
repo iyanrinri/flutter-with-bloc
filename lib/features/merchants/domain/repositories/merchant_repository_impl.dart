@@ -13,14 +13,15 @@ class MerchantRepositoryImpl implements MerchantRepository {
   @override
   Future<List<Merchant>> getMerchants({int page = 1, String? query}) async {
     try {
+      var queryParams = {
+        'page': page.toString(),
+        if (query != null) 'query': query,
+      };
       final response = await apiService.sendRequest(
         method: 'GET',
         endpoint: '/merchants',
         useAuth: true,
-        queryParameters: {
-          'page': page.toString(),
-          if (query != null) 'q': query,
-        }
+        queryParameters: queryParams
       );
       if (response?.statusCode == 200) {
         final data = response?.data as List;

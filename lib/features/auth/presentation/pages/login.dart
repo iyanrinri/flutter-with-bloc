@@ -48,6 +48,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _nextPage() async {
+    if (!mounted) return;
     _pageController.animateToPage(
       1,
       duration: const Duration(milliseconds: 500),

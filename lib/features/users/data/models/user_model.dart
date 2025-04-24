@@ -1,3 +1,5 @@
+import 'package:yukngantri/features/users/domain/entities/user.dart';
+
 class UserModel {
   final int id;
   final String name;
@@ -39,5 +41,14 @@ class UserModel {
       'email': email,
       'role': role,
     };
+  }
+
+  User toEntity() {
+    return User(
+      id: id,
+      name: name,
+      email: email,
+      role: role,
+    );
   }
 }

@@ -9,12 +9,14 @@ import 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ApiService apiService;
   final FlutterSecureStorage storage;
+  String? _savedToken;
 
   AuthBloc({
     required this.apiService,
     required this.storage,
   }) : super(const AuthState()) {
     on<LoginRequested>(_onLoginRequested);
+    on<LoginFingerRequested>(_onLoginFingerRequested);
     on<InitUserRequested>(_onInitUserRequested);
     on<LogoutRequested>(_onLogoutRequested);
 
@@ -26,7 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final token = await storage.read(key: 'token');
     if (token != null) {
       emit(state.copyWith(token: token));
-      add(const InitUserRequested()); // Inisialisasi pengguna jika token ada
+      add(const InitUserRequested());
     }
   }
 
@@ -60,8 +62,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await storage.write(key: 'token', value: token);
       await storage.write(key: 'access_token', value: token);
       emit(state.copyWith(token: token, isLoading: false));
-
-      // Inisialisasi pengguna setelah login
       add(const InitUserRequested());
     } else {
       final responseData = response.data;
@@ -69,6 +69,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final errorMsg = message is String ? message : message.join(' ');
       emit(state.copyWith(isLoading: false, errorMessage: errorMsg));
     }
+  }
+
+  Future<void> _onLoginFingerRequested(
+      LoginFingerRequested event,
+      Emitter<AuthState> emit,
+      ) async {
+      emit(state.copyWith(isLoading: true, errorMessage: null));
+      _savedToken = await storage.read(key: 'access_token');
+      await storage.write(key: 'token', value: _savedToken);
+      emit(state.copyWith(token: _savedToken, isLoading: false));
+      add(const InitUserRequested());
   }
 
   Future<void> _onInitUserRequested(
@@ -127,7 +138,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       Emitter<AuthState> emit,
       ) async {
     await storage.delete(key: 'token');
-    await storage.delete(key: 'access_token');
+    // await storage.delete(key: 'access_token');
     await storage.delete(key: 'user');
     emit(const AuthState());
   }

@@ -19,7 +19,7 @@ class UserRepositoryImpl implements UserRepository {
         useAuth: true,
         queryParameters: {
           'page': page.toString(),
-          if (query != null) 'q': query,
+          if (query != null) 'query': query,
         }
       );
       if (response?.statusCode == 200) {

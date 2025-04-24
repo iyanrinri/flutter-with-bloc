@@ -1,6 +1,8 @@
 // lib/features/profile/presentation/pages/profile_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yukngantri/core/utils/double_back_to_exit.dart';
 import 'package:yukngantri/core/widgets/layouts/main.dart';
@@ -19,6 +21,10 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _isDarkMode = false;
+  bool _enableFingerPrint = false;
+  final _auth = LocalAuthentication();
+  String? _savedToken;
+  final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -27,19 +33,54 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _loadDarkModePreference() async {
-    final prefs = await SharedPreferences.getInstance();
+    String? darkMode = await _storage.read(key: 'dark_mode');
+    String? fingerPrintEnabled = await _storage.read(key: 'finger_print_enabled');
+    bool isDarkMode = darkMode == '1' ? true : false;
+    bool isFingerprintEnabled = fingerPrintEnabled == '1' ? true : false;
     setState(() {
-      _isDarkMode = prefs.getBool('dark_mode') ?? false;
+      _isDarkMode = isDarkMode;
+      _enableFingerPrint = isFingerprintEnabled;
     });
   }
 
   Future<void> _toggleDarkMode(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkMode = value;
-      prefs.setBool('dark_mode', value);
+      _setDarkMode(value);
     });
-    // TODO: Terapkan perubahan tema di App (lihat app.dart)
+  }
+
+  Future<void> _setDarkMode(bool value) async {
+    await _storage.write(key: 'dark_mode', value: value ? "1" : "0");
+  }
+
+  Future<void> _toggleEnableFingerPrint(bool value) async {
+    setState(() {
+      _loginWithFingerprint(value);
+    });
+  }
+
+  Future<void> _loginWithFingerprint(bool value) async {
+    final canAuth = await _auth.canCheckBiometrics;
+    if (!canAuth || !mounted) return;
+
+    try {
+      final didAuth = await _auth.authenticate(
+        localizedReason: 'Login with fingerprint',
+        options: const AuthenticationOptions(biometricOnly: true),
+      );
+
+      if (!mounted) return;
+      if (didAuth) {
+        _enableFingerPrint = value;
+        await _storage.write(key: 'finger_print_enabled', value: value ? '1' : '0');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fingerprint authentication failed: $e')),
+      );
+    }
   }
 
   @override
@@ -119,6 +160,25 @@ class _ProfilePageState extends State<ProfilePage> {
                         debugPrint('Settings tapped');
                         // TODO: Navigasi ke halaman pengaturan
                       }),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15, right: 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(Icons.fingerprint, size: 20),
+                                SizedBox(width: 8),
+                                Text('Active Finger Print', style: TextStyle(fontSize: 16)),
+                              ],
+                            ),
+                            Switch(
+                              value: _enableFingerPrint,
+                              onChanged: _toggleEnableFingerPrint,
+                            ),
+                          ],
+                        ),
+                      ),
                       const Divider(),
                       _buildMenuItem(Icons.logout, 'Log out', () {
                         debugPrint('Logout tapped from ProfilePage');

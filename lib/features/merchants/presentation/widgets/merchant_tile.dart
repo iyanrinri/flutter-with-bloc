@@ -23,7 +23,7 @@ class MerchantTile extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Email: ${merchant.createdAt}'),
+              Text('Created: ${merchant.createdAt}'),
             ],
           ),
           trailing: Row(

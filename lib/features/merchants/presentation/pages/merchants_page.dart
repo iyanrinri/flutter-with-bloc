@@ -169,9 +169,9 @@ class _MerchantsPageState extends State<MerchantsPage> {
                       child: TextField(
                         controller: _queryController,
                         decoration: InputDecoration(
-                          labelText: 'Cari Pengguna',
+                          labelText: 'Cari Toko',
                           border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.person),
+                          prefixIcon: Icon(Icons.store),
                         ),
                         onSubmitted:
                             (value) {

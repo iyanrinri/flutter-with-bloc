@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yukngantri/core/utils/double_back_to_exit.dart';
 import 'package:yukngantri/core/widgets/layouts/main.dart';
-import 'package:yukngantri/core/theme/app_colors.dart';
 import 'package:yukngantri/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:yukngantri/features/auth/presentation/pages/login.dart';
+
 import '../../../auth/presentation/bloc/auth_state.dart';
-import '../widgets/line_chart.dart';
 
 class DashboardPage extends StatefulWidget {
   static const routeName = '/dashboard';
@@ -18,14 +17,16 @@ class DashboardPage extends StatefulWidget {
 }
 
 class DashboardPageState extends State<DashboardPage> {
-  late bool isShowingMainData = true;
 
   @override
   void initState() {
     super.initState();
-    isShowingMainData = true;
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return DoubleBackToExitWrapper(
@@ -63,38 +64,9 @@ class DashboardPageState extends State<DashboardPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(Icons.refresh, color: Colors.black),
-                          onPressed: () {
-                            setState(() {
-                              isShowingMainData = !isShowingMainData;
-                            });
-                          },
-                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Monthly Sales',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 37),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 16, left: 6),
-                      child: LineChartWidget(
-                        isShowingMainData: isShowingMainData,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
                 ],
               ),
             );
@@ -104,3 +76,4 @@ class DashboardPageState extends State<DashboardPage> {
     );
   }
 }
+

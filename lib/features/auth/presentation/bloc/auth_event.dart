@@ -14,6 +14,10 @@ class LoginRequested extends AuthEvent {
   });
 }
 
+class LoginFingerRequested extends AuthEvent {
+  const LoginFingerRequested();
+}
+
 class InitUserRequested extends AuthEvent {
   const InitUserRequested();
 }

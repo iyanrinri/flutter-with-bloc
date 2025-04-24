@@ -21,6 +21,8 @@ class _LoginFormState extends State<LoginForm> {
   final _storage = const FlutterSecureStorage();
   bool _rememberMe = false;
   String? _savedToken;
+  bool _isAuthenticating = false;
+  bool _isFingerPrintEnabled = false;
 
   @override
   void initState() {
@@ -40,7 +42,6 @@ class _LoginFormState extends State<LoginForm> {
     if (mounted) {
       setState(() {
         _savedToken = token;
-        _loginWithFingerprint();
       });
     }
   }
@@ -62,8 +63,18 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> _loginWithFingerprint() async {
+    String? fingerPrintEnabled = await _storage.read(key: 'finger_print_enabled');
+    _isFingerPrintEnabled = fingerPrintEnabled == '1' ? true : false;
+    if (!_isFingerPrintEnabled) return;
+
+    if (_isAuthenticating || !mounted) return;
+    setState(() {
+      _isAuthenticating = true;
+    });
+
     final canAuth = await _auth.canCheckBiometrics;
-    if (!canAuth) return;
+    if (!canAuth || !mounted) return;
+
     try {
       final didAuth = await _auth.authenticate(
         localizedReason: 'Login with fingerprint',
@@ -71,22 +82,14 @@ class _LoginFormState extends State<LoginForm> {
       );
 
       if (!mounted) return;
-
       if (didAuth) {
         _savedToken = await _storage.read(key: 'access_token');
-        // if (!mounted) return;
-
         if (_savedToken != null) {
-          await _storage.write(key: 'token', value: _savedToken);
-          // if (!mounted) return;
-          Navigator.pushReplacementNamed(context, '/dashboard');
+          context.read<AuthBloc>().add(LoginFingerRequested());
         } else {
-          // if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text(
-                'No saved login. Please login with email & password.',
-              ),
+              content: Text('No saved login. Please login with email & password.'),
             ),
           );
         }
@@ -94,7 +97,7 @@ class _LoginFormState extends State<LoginForm> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Fingerprint authentication failed')),
+        SnackBar(content: Text('Fingerprint authentication failed: $e')),
       );
     }
   }
@@ -187,7 +190,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
               const SizedBox(height: 10),
               // Tombol Fingerprint
-              if (_savedToken != null)
+              if (_savedToken != null && _isFingerPrintEnabled)
                 IconButton(
                   icon: const Icon(Icons.fingerprint, size: 40),
                   onPressed: _loginWithFingerprint,
